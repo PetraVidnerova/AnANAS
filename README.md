@@ -21,11 +21,11 @@ numpy, keras, pandas, scikit-learn, deap
 
 ## Usage:
 ```
-python main.py --type dense --trainset DATASET_NAME --testset DATASET_NAME --id ID_TEXT
+python main.py --type dense --trainset DATASET_NAME --testset DATASET_NAME --id EXPERIMENT_ID
 ```
 to run on one GPU (recommended), I use: 
 ```
-CUDA_VISIBLE_DEVICES=0 python main.py --type dense --trainset DATASET_NAME --testset DATASET_NAME --id ID_TEXT
+CUDA_VISIBLE_DEVICES=0 python main.py --type dense --trainset DATASET_NAME --testset DATASET_NAME --id EXPERIMENT_ID
 ```
 
  
