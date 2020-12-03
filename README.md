@@ -1,4 +1,4 @@
-# AnANAS ![ananas](fig/ananas.png)
+# <img src="fig/ananas.png" width="50px"/> AnANAS
 An Automatic Neural Architecture Search 
 
 
