@@ -1,4 +1,4 @@
-# AnANAS &nbsp; &nbsp; &nbsp; <img src="fig/ananas.png" width="50px"/>
+# <img src="fig/ananas.png" width="50px"/> AnANAS
 An Automatic Neural Architecture Search 
 
 
