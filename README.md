@@ -1,5 +1,5 @@
 # <img src="fig/ananas.png" width="50px"/> AnANAS
-Answer for Automatic Neural Architecture Search 
+Answer to Automatic Neural Architecture Search 
 
 
 *Author: Petra Vidnerová, The Czech Academy of Sciences, Institute of Computer Science*
