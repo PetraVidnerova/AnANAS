@@ -23,7 +23,7 @@ numpy, keras, pandas, scikit-learn, deap, click, matplotlib
 - using keras datasets or data form csv files 
 - "vanilla" GA, multiobjective evolution via NSGA, NSGAII, NSGAIII 
 - runing in parallel on one GPU or parallel on several CPUs 
-- optimising feedworfard deep neural networks with dense layers, convolutinal networks  
+- optimising feedworfard deep neural networks with dense layers, convolutinal networks   
  
 ## Usage:
 1. Run evolution using `main.py`, produces a `.pkl` file with the checkpoint (after each iteration). Checkpoint stores all information
@@ -71,6 +71,53 @@ Example:
 ```
 python evaluate_result.py eval-front  --data_source keras --trainset mnist checkpoint.pkl
 ```
+
+## Config file example
+
+task.yaml 
+```
+dataset:
+  name: mnist
+  source_type: keras
+
+network_type: dense
+
+nsga: 2
+
+main_alg:
+  batch_size: 128
+  eval_batch_size: 30
+  epochs: 10
+  loss: mean_squared_error
+  task_type: classification
+  final_epochs: 20
+
+ga:
+  pop_size: 20
+  n_gen: 20
+  
+network:
+  max_layers: 5
+  max_layer_size: 1000
+  min_layer_size: 10
+  dropout: [0.0, 0.2, 0.3, 0.4]
+  activations: ['relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
+
+device:
+  device_type: CPU
+  n_cpus: 10 
+```
+
+To run on GPU specify:
+```
+device:
+  device_type: GPU
+``` 
+To evolve convolutional networks:
+```
+network_type: conv
+``` 
+
  
 ## Acknowledgement: 
 This work  was partially supported by the TAČR grant TN01111124 
