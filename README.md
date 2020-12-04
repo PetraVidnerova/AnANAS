@@ -17,7 +17,7 @@ both network perfomance and an architecture size.
 
 ## Requirements:
 
-numpy, keras, pandas, scikit-learn, deap 
+numpy, keras, pandas, scikit-learn, deap, click, matplotlib
 
 ## Main features:
 - using keras datasets or data form csv files 
