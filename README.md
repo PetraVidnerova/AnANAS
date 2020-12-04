@@ -26,33 +26,50 @@ numpy, keras, pandas, scikit-learn, deap, click, matplotlib
 - optimising feedworfard deep neural networks with dense layers, convolutinal networks  
  
 ## Usage:
+1. Run evolution using `main.py`, produces a `.pkl` file with the checkpoint (after each iteration)
+2. Inspect results runing `evaluate_result.py` on the resulting `.pkl` checkpoint file 
+
+### main.py: 
 ```
-usage: main.py [-h] [--type TYPE] [--trainset TRAINSET] [--testset TESTSET]
-               [--nsga NSGA] [--id ID] [--checkpoint CHECKPOINT]
-               [--config CONFIG]
+usage: main.py [-h] [--id ID] [--log LOG] TASK
+
+positional arguments:
+  TASK        name of a yaml file with a task definition
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --type TYPE           either "conv" or "dense"
-  --trainset TRAINSET   filename of training set
-  --testset TESTSET     filename of test set
-  --nsga NSGA           0,1,2,3
-  --id ID               computation id
-  --checkpoint CHECKPOINT
-                        checkpoint file to load the initial state from
-  --config CONFIG       json config filename
-
+  -h, --help  show this help message and exit
+  --id ID     computation id
+  --log LOG   set logging level, default INFO
 ```
 
 Example:
 ```
-python main.py --type dense --trainset DATASET_NAME --testset DATASET_NAME --id EXPERIMENT_ID
+python main.py task.yaml --id test1
 ```
 to run on one GPU (recommended), I use: 
 ```
-CUDA_VISIBLE_DEVICES=0 python main.py --type dense --trainset DATASET_NAME --testset DATASET_NAME --id EXPERIMENT_ID
+CUDA_VISIBLE_DEVICES=0 python main.py tasks.yaml --id gpu_test 
 ```
+### evaluate_result.py 
+```
+Usage: evaluate_result.py [OPTIONS] COMMAND [ARGS]...
 
+Options:
+  --conv BOOLEAN
+  --help          Show this message and exit.
+
+Commands:
+  eval-front
+  evaluate
+  list-front
+  plot
+  query-iter
+``` 
+
+Example:
+```
+python evaluate_result.py eval-front  --data_source keras --trainset mnist checkpoint.pkl
+```
  
 ## Acknowledgement: 
 This work  was partially supported by the TAČR grant TN01111124 
