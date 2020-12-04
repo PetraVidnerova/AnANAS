@@ -51,3 +51,4 @@ CUDA_VISIBLE_DEVICES=0 python main.py --type dense --trainset DATASET_NAME --tes
 ## Acknowledgement: 
 This work  was partially supported by the TAČR grant TN01111124 
 and institutional support of the Institute of Computer Science RVO 67985807.
+Thanks to Štěpán Procházka for the idea of multi-model implementation. 
