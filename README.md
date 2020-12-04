@@ -19,6 +19,12 @@ both network perfomance and an architecture size.
 
 numpy, keras, pandas, scikit-learn, deap 
 
+## Main features:
+- using keras datasets or data form csv files 
+- "vanilla" GA, multiobjective evolution via NSGA, NSGAII, NSGAIII 
+- runing in parallel on one GPU or parallel on several CPUs 
+- optimising feedworfard deep neural networks with dense layers, convolutinal networks  
+ 
 ## Usage:
 ```
 usage: main.py [-h] [--type TYPE] [--trainset TRAINSET] [--testset TESTSET]
