@@ -23,14 +23,14 @@ class Database:
 
 class Fitness:
 
-    def __init__(self, source_type="keras", name="mnist"):
+    def __init__(self, source_type="keras", name="mnist", **kwargs):
 
-        if source_type != "keras":
-            raise NotImplementedError("temporarily only keras datasets available")
+        # if source_type != "keras" and souce_type:
+        #     raise NotImplementedError("temporarily only keras datasets available")
         # load train data
 
         flatten = config.global_config["network_type"] == "dense"
-        self.X, self.y = load_data(source_type, name, flatten=flatten)
+        self.X, self.y = load_data(source_type, name, flatten=flatten, **kwargs)
 
         self.input_shape = self.X[0].shape
         self.noutputs = self.y.shape[1]

@@ -28,6 +28,10 @@ def eval_invalid_inds_single_gpu(pop, toolbox):
 
 # TODO: stupid way how to do it, fix 
 def eval_invalid_inds_cpu_parallel(pop, toolbox): 
+    """ Evaluates invalid individuals using toolbox.map 
+        Returns number of evaluated individuals.
+    """ 
+    
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
     ind_batches = [
         [individual]
@@ -58,7 +62,9 @@ def _give_eval_function():
 
 def nsga(population, start_gen, toolbox, cxpb, mutpb, ngen,
          stats, halloffame, logbook, verbose, exp_id=None):
+    """ Realises given number of generations of nsga run. """
 
+    
     # eval function differs on CPU and GPU
     eval_invalid_inds = _give_eval_function() 
 
