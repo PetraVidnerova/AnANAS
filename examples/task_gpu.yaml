@@ -1,0 +1,30 @@
+dataset:
+  name: mnist
+  source_type: keras
+
+network_type: dense
+
+nsga: 2
+
+main_alg:
+  batch_size: 128
+  eval_batch_size: 30
+  epochs: 10
+  loss: mean_squared_error
+  task_type: classification
+  final_epochs: 20
+
+ga:
+  pop_size: 20
+  n_gen: 20
+  
+network:
+  max_layers: 5
+  max_layer_size: 1000
+  min_layer_size: 10
+  dropout: [0.0, 0.2, 0.3, 0.4]
+  activations: ['relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
+
+device:
+  device_type: GPU
+ 

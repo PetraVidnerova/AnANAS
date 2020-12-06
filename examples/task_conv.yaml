@@ -1,0 +1,40 @@
+dataset:
+  name: mnist
+  source_type: keras
+
+network_type: conv
+
+nsga: 2
+
+main_alg:
+  batch_size: 128
+  eval_batch_size: 30
+  epochs: 10
+  loss: mean_squared_error
+  task_type: classification
+  final_epochs: 20
+
+ga:
+  pop_size: 20
+  n_gen: 20
+  
+network:
+  max_layers: 5
+  max_layer_size: 1000
+  min_layer_size: 10
+  dropout: [0.0, 0.2, 0.3, 0.4]
+  activations: ['relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
+  max_conv_layers: 4
+  conv_layer: 0.7
+  max_pool_layer: 0.3
+  min_pool_size: 2
+  max_pool_size: 4
+  min_filters: 10
+  max_filters: 100
+  max_dense_layers: 5
+  min_kernel_size: 2
+  max_kernel_size: 5
+
+device:
+  device_type: CPU
+  n_cpus: 10 
