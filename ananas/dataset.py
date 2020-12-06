@@ -9,8 +9,19 @@ data_modules_dict = {
     "fashion_mnist": fashion_mnist
 }
     
-def load_data(source_type, name, test=False, flatten=True):
+def load_data(source_type, name, test=False, flatten=True, **kwargs):
+    """ Load dataset and returns X and Y either for trainset or test set. 
 
+    parameters:
+        source_type: either "keras" or "csv". "keras" uses the keras.datasets.
+                     "csv" data will be readed from text file. 
+        name: for keras datasets "mnist", "cifar10", "fashion_mnist" are supported
+              for "csv" it stands for the name of file with trainset (including suffix) 
+        test: default False, set True if you want to return test set instead of trainset 
+        flatten: default True, use False if using convolutional networks 
+        test_name: optional, if using "csv", specifies name of file with test set 
+    """ 
+    
     if source_type == "keras":
         try:
             (X_train, y_train), (X_test, y_test) = data_modules_dict[name].load_data()
@@ -19,29 +30,41 @@ def load_data(source_type, name, test=False, flatten=True):
 
         
         if not test:
-            if flatten:
-                X_train = X_train.reshape(X_train.shape[0], -1)
-            else:
-                X_train  = X_train[..., np.newaxis] 
-            X_train = X_train.astype('float32')
-            X_train /= 255
-
-            Y_train = np_utils.to_categorical(y_train)
-            
-            return X_train, Y_train
-
+            X = X_train
+            y = y_train
         else:
-            if flatten:
-                X_test = X_test.reshape(X_test.shape[0], -1)
-            else:
-                X_test  = X_test[..., np.newaxis] 
-            X_test = X_test.astype('float32')
-            X_test /= 255
+            X = X_test
+            y = y_test 
 
-            Y_test = np_utils.to_categorical(y_test)
+        if flatten:
+            X = X.reshape(X.shape[0], -1)
+        else:
+            X  = X_train[..., np.newaxis]
             
-            return X_test, Y_test
+        X = X.astype('float32')
+        X /= 255
+
+        Y = np_utils.to_categorical(y)
             
+        return X, Y
+            
+    if source_type == "csv":
+        if not test:
+            df = pd.read_csv(name, header=None)
+        else:
+            df = pd.read_csv(kwargs["test_name"], header=None)
+
+        y = df.pop(df.columns[-1])
+        if flatten:
+            X = df.to_numpy() 
+        else:
+            raise NotImplementedError("unsuported dataset type") 
+        
+        X = X.astype('float32')
+        Y = np_utils.to_categorical(y)
+            
+        return X, Y
+        
         
         
     raise NotImplementedError("unsuported dataset type") 
