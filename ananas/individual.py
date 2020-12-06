@@ -4,8 +4,7 @@ from keras.layers.core import Dense, Dropout, Activation
 from keras.layers import InputLayer
 # from keras.optimizers import RMSprop
 
-from config import Config
-
+import config
 
 class Layer:
     """ Specification of one layer.
@@ -16,10 +15,13 @@ class Layer:
         pass
 
     def randomInit(self):
+        network_config = config.global_config["network"] 
         self.size = random.randint(
-            Config.MIN_LAYER_SIZE, Config.MAX_LAYER_SIZE)
-        self.dropout = random.choice(Config.DROPOUT)
-        self.activation = random.choice(Config.ACTIVATIONS)
+            network_config["min_layer_size"],
+            network_config["max_layer_size"],
+        )
+        self.dropout = random.choice(network_config["dropout"])
+        self.activation = random.choice(network_config["activations"])
         return self
 
     def __str__(self):
@@ -39,13 +41,13 @@ class Individual:
     """
 
     def __init__(self):
-        self.input_shape = Config.input_shape
-        self.noutputs = Config.noutputs
+        self.input_shape = config.global_config["input_shape"]
+        self.noutputs = config.global_config["noutputs"]
         # print(self.input_shape, self.noutputs)
 
     def randomInit(self):
         self.layers = []
-        num_layers = random.randint(1, Config.MAX_LAYERS)
+        num_layers = random.randint(1, config.global_config["network"]["max_layers"])
         for l in range(num_layers):
             layer = Layer().randomInit()
             self.layers.append(layer)
@@ -54,7 +56,7 @@ class Individual:
 
         model = Sequential()
 
-        model.add(input_layer or InputLayer(Config.input_shape))
+        model.add(input_layer or InputLayer(config.global_config["input_shape"]))
 
         for l in self.layers:
             model.add(Dense(l.size))
@@ -64,7 +66,8 @@ class Individual:
 
         # final part
         model.add(Dense(self.noutputs))
-        if Config.task_type == "classification":
+        
+        if config.global_config["main_alg"]["task_type"] == "classification":
             model.add(Activation('softmax'))
 
         # model.compile(loss=Config.loss,

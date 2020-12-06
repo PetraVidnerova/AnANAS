@@ -1,5 +1,5 @@
 import numpy as np
-from config import Config
+import config
 import random
 
 
@@ -29,7 +29,7 @@ def accuracy_score(y1, y2):
 
 
 def error(y1, y2):
-    if Config.task_type == "classification":
+    if config.global_config["main_alg"]["task_type"] == "classification":
         return accuracy_score(y1, y2)
     else:
         return mean_sq_error(y1, y2)

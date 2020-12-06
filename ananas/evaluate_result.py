@@ -11,11 +11,13 @@ from deap import creator, base
 from individual import Individual
 from convindividual import ConvIndividual
 from dataset import load_data
-from config import Config
 from utils import error, print_stat
 
-USE_CONV = False
+import config
 
+# TODO config
+USE_CONV = False
+FINAL_EVALS = 10 
 
 def init():
     creator.create("FitnessMax", base.Fitness, weights=(1.0, -1.0))
@@ -31,7 +33,9 @@ def load_checkpoint(name):
     pop = cp["population"]
     front = cp["halloffame"]
     log = cp["logbook"]
-    return pop, front, log
+    cfg = cp["config"]
+        
+    return pop, front, log, cfg
 
 
 @click.group()
@@ -57,20 +61,20 @@ def main(conv):
 @main.command()
 @click.argument("cp_name")
 def list_front(cp_name):
-    _, front, _ = load_checkpoint(cp_name) 
+    front = load_checkpoint(cp_name)[1]
     print("size", len(front))
     for i, ind in enumerate(front):
         print("{}: {} {}".format(i, ind.fitness.values[0], ind.fitness.values[1]))
     
 
-def eval_mean(ind, X_train, y_train, X_test, y_test):
+def eval_mean(ind, X_train, y_train, X_test, y_test, evals=10):
     #        E_train, E_test = [], []  # list of accuracies
 
     input_features = InputLayer(X_train[0].shape)
 
     individual_models = [
         ind.createNetwork(input_features)
-        for _ in range(Config.final_evals)
+        for _ in range(evals)
     ]
 
     multi_model = Model(
@@ -82,14 +86,15 @@ def eval_mean(ind, X_train, y_train, X_test, y_test):
     )
 
     multi_model.compile(
-        loss = Config.loss,
+        loss = config.global_config["main_alg"]["loss"],
         optimizer = RMSprop()
     )
 
     multi_model.fit(
         X_train,
-        [y_train for _ in range(Config.final_evals)],
-        batch_size=Config.batch_size, epochs=Config.epochs, verbose=0
+        [y_train for _ in range(evals)],
+        batch_size=config.global_config["main_alg"]["batch_size"],
+        epochs=config.global_config["main_alg"]["epochs"], verbose=0
     )
 
     pred_test = multi_model.predict(X_test)
@@ -120,15 +125,25 @@ def eval_mean(ind, X_train, y_train, X_test, y_test):
     return E_train, E_test 
 
 @main.command()
-@click.argument("trainset")
-@click.argument("testset")
 @click.argument("cp_name")
-def eval_front(trainset, testset, cp_name):
-    _, front, _ = load_checkpoint(cp_name) 
+@click.option("--data_source", default=None)
+@click.option("--trainset", default=None)
+@click.option("--testset", default=None)
+def eval_front(cp_name, data_source, trainset, testset):
 
+    _, front, _, cfg = load_checkpoint(cp_name) 
+
+    config.global_config.update(cfg)
+
+    if data_source is None:
+        assert trainset is None and testset is None
+        data_source  = config.global_config["dataset"]["source_type"]
+        trainset = config.global_config["dataset"]["name"]
+
+        
     # load the whole data
-    X_train, y_train = load_data("data/" + trainset)
-    X_test, y_test = load_data("data/" + testset)
+    X_train, y_train = load_data(data_source, trainset)
+    X_test, y_test = load_data(data_source, trainset, test=True)
 
     for i, ind in enumerate(front):
         E_train, E_test = eval_mean(ind, X_train, y_train, X_test, y_test)
@@ -203,7 +218,7 @@ def plot(cp_name):
 @main.command()
 @click.argument("cp_name")
 def query_iter(cp_name):
-    _, _, log = load_checkpoint(cp_name)
+    log = load_checkpoint(cp_name)[2]
 
     print("Last generation:", [line["gen"] for line in log][-1])
 

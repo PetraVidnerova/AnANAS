@@ -4,10 +4,9 @@ import numpy as np
 import pickle
 from sklearn.model_selection import KFold
 from dataset import load_data
-from config import Config
 from utils import error
 from keras import backend as K
-
+import config
 
 class Database:
 
@@ -24,22 +23,29 @@ class Database:
 
 class Fitness:
 
-    def __init__(self, train_name):
+    def __init__(self, source_type="keras", name="mnist"):
 
+        if source_type != "keras":
+            raise NotImplementedError("temporarily only keras datasets available")
         # load train data
-        self.X, self.y = load_data(train_name)
+
+        flatten = config.global_config["network_type"] == "dense"
+        self.X, self.y = load_data(source_type, name, flatten=flatten)
+
+        self.input_shape = self.X[0].shape
+        self.noutputs = self.y.shape[1]
 
     def evaluate_batch(self, individuals):
-        Config.input_shape = self.X[0].shape # temporal fix, TODO: better cfg
- 
+
         kf = KFold(n_splits=5, shuffle=True, random_state=42)
         xval_datasets = np.asarray([
             (self.X[train], self.y[train], self.X[test], self.y[test])
             for train, test in kf.split(self.X)
         ], dtype=object)
 
+    
         xval_features = [
-            keras.layers.InputLayer(Config.input_shape)
+            keras.layers.InputLayer(self.input_shape)
             for _ in xval_datasets
         ]
 
@@ -62,14 +68,16 @@ class Fitness:
             ]
         )
         multi_model.compile(
-            loss=Config.loss,
+            loss=config.global_config["main_alg"]["loss"],
             optimizer=keras.optimizers.RMSprop()
         )
 
         multi_model.fit(
             list(xval_datasets[:, 0]),
             [y_train for y_train in xval_datasets[:, 1] for _ in individuals],
-            batch_size=Config.batch_size, epochs=Config.epochs, verbose=0
+            batch_size=config.global_config["main_alg"]["batch_size"],
+            epochs=config.global_config["main_alg"]["epochs"],
+            verbose=0
         )
 
         pred_test = multi_model.predict(list(xval_datasets[:, 2]))
@@ -85,11 +93,8 @@ class Fitness:
         return list(zip(fitness, sizes))
 
     def evaluate(self, individual):
-        # print(" *** evaluate *** ")
 
-        # model = individual.createNetwork()
-        # return random.random(),
-
+        
         random.seed(42)
         # perform KFold crossvalidation
         kf = KFold(n_splits=5)
@@ -101,8 +106,8 @@ class Fitness:
             model = individual.createNetwork()
             size = model.count_params() // 1000
             model.fit(X_train, y_train,
-                      batch_size=Config.batch_size,
-                      epochs=Config.epochs,
+                      batch_size=config.global_config["main_alg"]["batch_size"],
+                      epochs=config.global_config["main_alg"]["epochs"],
                       verbose=0)
 
             yy_test = model.predict(X_test)

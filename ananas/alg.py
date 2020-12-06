@@ -5,8 +5,7 @@ import datetime
 
 from deap import algorithms
 
-from config import Config
-
+import config
 
 def eval_invalid_inds_single_gpu(pop, toolbox):
     """ Evaluate the individuals with an invalid fitness 
@@ -15,8 +14,10 @@ def eval_invalid_inds_single_gpu(pop, toolbox):
     invalid_pop = [ind for ind in pop if not ind.fitness.valid]
     eval_size = len(invalid_pop)
 
-    for batch_begin in range(0, eval_size, Config.eval_batch_size):
-        batch_end = min(batch_begin + Config.eval_batch_size, eval_size)
+    eval_batch_size = config.global_config["main_alg"]["eval_batch_size"] 
+    
+    for batch_begin in range(0, eval_size, eval_batch_size):
+        batch_end = min(batch_begin + eval_batch_size, eval_size)
         batch_individuals = invalid_pop[batch_begin:batch_end]
         batch_fitness = toolbox.eval_batch(batch_individuals)
 
@@ -48,14 +49,18 @@ def eval_invalid_inds_cpu_parallel(pop, toolbox):
         ind.fitness.values = fit
     return len(invalid_ind)
 
+def _give_eval_function():
+    if config.global_config["device"]["device_type"] == "GPU":           
+        return eval_invalid_inds_single_gpu 
+    else:
+        return eval_invalid_inds_cpu_parallel
+
+
 def nsga(population, start_gen, toolbox, cxpb, mutpb, ngen,
          stats, halloffame, logbook, verbose, exp_id=None):
 
-    eval_invalid_inds = ( 
-        eval_invalid_inds_single_gpu 
-        if Config.GPU 
-        else eval_invalid_inds_cpu_parallel
-    )
+    # eval function differs on CPU and GPU
+    eval_invalid_inds = _give_eval_function() 
 
     popsize = len(population)
     total_time = datetime.timedelta(seconds=0)
@@ -88,7 +93,7 @@ def nsga(population, start_gen, toolbox, cxpb, mutpb, ngen,
                 halloffame=halloffame,
                 logbook=logbook,
                 rndstate=random.getstate(),
-                config=Config,
+                config=config.global_config,
             )
             if exp_id is None:
                 cp_name = "checkpoint_nsga.pkl"
@@ -114,11 +119,7 @@ def vanilla_ga(population, start_gen, toolbox, cxpb, mutpb, ngen,
                stats, halloffame, logbook, verbose, exp_id=None):
     """ Basic GA algorithm. Just to have a baseline. """
 
-    eval_invalid_inds = ( 
-        eval_invalid_inds_single_gpu 
-        if Config.GPU 
-        else eval_invalid_inds_cpu_parallel
-    )
+    eval_invalid_inds = _give_eval_function() 
 
     total_time = datetime.timedelta(seconds=0)
     eval_invalid_inds(population, toolbox)

@@ -4,8 +4,7 @@ from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D, InputLayer
 from utils import roulette
 from individual import Layer
-from config import Config
-
+import config
 
 class ConvLayer:
     """ Specification of one convolutional layer.
@@ -16,11 +15,16 @@ class ConvLayer:
         pass
 
     def randomInit(self):
-        self.filters = random.randint(Config.MIN_FILTERS, Config.MAX_FILTERS)
+        self.filters = random.randint(
+            config.global_config["network"]["min_filters"],
+            config.global_config["network"]["max_filters"]
+        )
         # filters are squares kernel_size x kernel_size
         self.kernel_size = random.randint(
-            Config.MIN_KERNEL_SIZE, Config.MAX_KERNEL_SIZE)
-        self.activation = random.choice(Config.ACTIVATIONS)
+            config.global_config["network"]["min_kernel_size"],
+            config.global_config["network"]["max_kernel_size"]
+        )
+        self.activation = random.choice(config.global_config["network"]["activations"])
         return self
 
     def __str__(self):
@@ -43,7 +47,9 @@ class MaxPoolLayer:
     def randomInit(self):
         # pooling size is (pool_size, pool_size)
         self.pool_size = random.randint(
-            Config.MIN_POOL_SIZE, Config.MAX_POOL_SIZE)
+            config.global_config["network"]["min_pool_size"],
+            config.global_config["network"]["max_pool_size"]
+        )
         return self
 
     def __str__(self):
@@ -60,7 +66,11 @@ def createRandomLayer():
 
     create = roulette([lambda: ConvLayer(),
                        lambda: MaxPoolLayer()],
-                      [Config.CONV_LAYER, Config.MAX_POOL_LAYER])
+                      [
+                          config.global_config["network"]["conv_layer"],
+                          config.global_config["network"]["max_pool_layer"]
+                      ]
+    )
     if create:
         return create()
     else:
@@ -74,19 +84,19 @@ class ConvIndividual:
     """
 
     def __init__(self):
-        self.input_shape = Config.input_shape
-        self.noutputs = Config.noutputs
+        self.input_shape = config.global_config["input_shape"]
+        self.noutputs = config.global_config["noutputs"]
         self.nparams = None
 
     def randomInit(self):
         self.conv_layers = []
-        num_conv_layers = random.randint(1, Config.MAX_CONV_LAYERS)
+        num_conv_layers = random.randint(1, config.global_config["network"]["max_conv_layers"])
         for l in range(num_conv_layers):
             layer = createRandomLayer().randomInit()
             self.conv_layers.append(layer)
 
         self.dense_layers = []
-        num_dense_layers = random.randint(1, Config.MAX_DENSE_LAYERS)
+        num_dense_layers = random.randint(1, config.global_config["network"]["max_dense_layers"])
         for l in range(num_dense_layers):
             layer = Layer().randomInit()
             self.dense_layers.append(layer)
@@ -94,7 +104,7 @@ class ConvIndividual:
     def createNetwork(self, input_layer=None):
         model = Sequential()
 
-        model.add(input_layer or InputLayer(Config.input_shape))
+        model.add(input_layer or InputLayer(config.global_config["input_shape"]))
 
         # convolutional part
         for l in self.conv_layers:
@@ -120,7 +130,7 @@ class ConvIndividual:
 
         # final part
         model.add(Dense(self.noutputs))
-        if Config.task_type == "classification":
+        if config.global_config["main_alg"]["task_type"] == "classification":
             model.add(Activation('softmax'))
 
         self.nparams = model.count_params()

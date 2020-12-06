@@ -1,7 +1,7 @@
 import random
 from utils import roulette
 from individual import Individual, Layer
-from config import Config
+import config
 
 PROB_MUTATE_LAYER = 0.5
 PROB_ADD_LAYER = 0.25
@@ -23,7 +23,10 @@ class Mutation:
 
 
     def changeSize(self, layer):
-        layer.size = random.randint(Config.MIN_LAYER_SIZE, Config.MAX_LAYER_SIZE)
+        layer.size = random.randint(
+            config.global_config["network"]["min_layer_size"],
+            config.global_config["network"]["max_layer_size"]
+        )
 
     def addNeuron(self, layer):
         layer.size += 1
@@ -41,10 +44,10 @@ class Mutation:
 
 
     def mutateDropout(self, layer):
-        layer.dropout = random.choice(Config.DROPOUT)
+        layer.dropout = random.choice(config.global_config["network"]["dropout"])
         
     def mutateActivation(self, layer):
-        layer.activation = random.choice(Config.ACTIVATIONS)
+        layer.activation = random.choice(config.global_config["network"]["activations"])
 
     def randomInit(self, layer):
         layer.randomInit()
@@ -105,13 +108,22 @@ class MutationConv(Mutation):
 
 
     def mutateFilters(self, layer):
-        layer.filters = random.randint(Config.MIN_FILTERS, Config.MAX_FILTERS)
+        layer.filters = random.randint(
+            config.global_config["network"]["min_filters"],
+            config.global_config["network"]["max_filters"]
+        )
 
     def mutateKernelSize(self, layer):
-        layer.kernel_size = random.randint(Config.MIN_KERNEL_SIZE, Config.MAX_KERNEL_SIZE)
+        layer.kernel_size = random.randint(
+            config.global_config["network"]["min_kernel_size"],
+            config.global_config["network"]["max_kernel_size"]
+        )
 
     def mutatePoolSize(self, layer):
-        layer.pool_size =  random.randint(Config.MIN_POOL_SIZE, Config.MAX_POOL_SIZE)
+        layer.pool_size =  random.randint(
+            config.global_config["network"]["min_pool_size"],
+            config.global_config["network"]["max_pool_size"]
+        )
         
         
     def mutateLayer(self, individual):
