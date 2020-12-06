@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# emacs backup files
+*~
+
+# output files 
+*.json
+*.pkl
