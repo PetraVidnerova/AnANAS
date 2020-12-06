@@ -26,7 +26,7 @@ numpy, keras, pandas, scikit-learn, deap, click, matplotlib
 - optimising feedworfard deep neural networks with dense layers, convolutinal networks   
  
 ## Usage:
-1. Run evolution using `main.py`, produces a `.pkl` file with the checkpoint (after each iteration). Checkpoint stores all information
+1. Run evolution using `main.py`, produces a `.json` file with the list of all architectures from the pareto-front, a `.pkl` file with the checkpoint (after each iteration). Checkpoint stores all information
  needed to continue the computation in another run as well as the results. 
 2. Inspect results runing `evaluate_result.py` on the resulting `.pkl` checkpoint file 
 
