@@ -67,7 +67,7 @@ checkpoint_file = config.global_config.get("checkpoint_file", None)
 # for classification fitness is accuracy, for approximation fitness is error
 # second fitness element is network size, should be minimised
 # approximation is default 
-if config.global_config["main_alg"].get("task_type", "")  == "classification":
+if config.global_config["main_alg"].get("task_type", "") in  ("classification", "binary_classification"):
     creator.create("FitnessMax", base.Fitness, weights=(1.0, -1.0))
     logging.info("Classification task setup.")
 else:
