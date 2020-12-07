@@ -9,7 +9,8 @@ from keras import backend as K
 import config
 
 class Database:
-
+    """ Object to save evaluated networks. """ 
+    
     def __init__(self):
         self.data = []
 
@@ -22,7 +23,15 @@ class Database:
 
 
 class Fitness:
+    """ Object encapsulated fitness function.
 
+    Usage: 
+          fit = Fitness()
+          fit.evaluate(individual)
+          # or evaluate more individuals simutanelously
+          fit. evaluate_batch(individuals)
+    """
+    
     def __init__(self, source_type="keras", name="mnist", **kwargs):
 
         # if source_type != "keras" and souce_type:
