@@ -1,6 +1,10 @@
 import random 
 
 def cxListOnePoint(list1, list2):
+    """ One point crossover on two lists.
+        Modifies the arguments. 
+    """
+    
     assert len(list1) > 0 and len(list2) > 0
     
     cxpoint1 = random.randint(0, len(list1) - 1)
@@ -13,7 +17,7 @@ def cxListOnePoint(list1, list2):
 class Crossover:
 
     def cxOnePoint(self, ind1, ind2):
-        #do one-point crossover on list of layers 
+        """ Do one-point crossover on list of layers. """
         cxListOnePoint(ind1.layers, ind2.layers) 
         return ind1, ind2 
 
@@ -21,7 +25,8 @@ class Crossover:
 class CrossoverConv:
 
     def cxOnePoint(self, ind1, ind2):
-        #do one-point crossover on list of layers
+        """ Do one-point crossover on list of layers. """
+        
         #convolutional layers
         cxListOnePoint(ind1.conv_layers, ind2.conv_layers)
         #dense layers 
