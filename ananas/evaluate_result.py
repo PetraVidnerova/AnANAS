@@ -47,20 +47,12 @@ def main(conv):
         USE_CONV = True
 
 
-# @main.command()
-# @click.argument("cp_name")
-# def show_pop(cp_name):
-#     pop, _, _ = load_checkpoint(cp_name)
-#     print(len(pop))
-#     print(" i: acc    size")
-#     for i, ind in enumerate(pop):
-#         print(f"{i:2}: {ind.fitness.values[0]*100:.2f} ",
-#               f"{ind.fitness.values[1]:5.1f}")
-
 
 @main.command()
 @click.argument("cp_name")
 def list_front(cp_name):
+    """ List fitness values of individuals from the pareto front. """ 
+
     front = load_checkpoint(cp_name)[1]
     print("size", len(front))
     for i, ind in enumerate(front):
@@ -77,6 +69,8 @@ def eval_mean(ind, X_train, y_train, X_test, y_test, evals=10):
         for _ in range(evals)
     ]
 
+    individual_models[0].summary()
+    
     multi_model = Model(
         inputs = [input_features.input],
         outputs = [
@@ -130,7 +124,8 @@ def eval_mean(ind, X_train, y_train, X_test, y_test, evals=10):
 @click.option("--trainset", default=None)
 @click.option("--testset", default=None)
 def eval_front(cp_name, data_source, trainset, testset):
-
+    """ Evaluate all individuals from the pareto front. """ 
+    
     _, front, _, cfg = load_checkpoint(cp_name) 
 
     config.global_config.update(cfg)
@@ -139,13 +134,15 @@ def eval_front(cp_name, data_source, trainset, testset):
         assert trainset is None and testset is None
         data_source  = config.global_config["dataset"]["source_type"]
         trainset = config.global_config["dataset"]["name"]
+        test_name = config.global_config["dataset"]["test_name"]
 
         
     # load the whole data
     X_train, y_train = load_data(data_source, trainset)
-    X_test, y_test = load_data(data_source, trainset, test=True)
+    X_test, y_test = load_data(data_source, trainset, test=True, test_name=test_name)
 
     for i, ind in enumerate(front):
+        
         E_train, E_test = eval_mean(ind, X_train, y_train, X_test, y_test)
         print(i, ": ", end="")
         print_stat(E_train, "train")
@@ -158,41 +155,43 @@ def eval_front(cp_name, data_source, trainset, testset):
 
 @main.command()
 @click.argument("i", type=int)
-@click.argument("trainset")
-@click.argument("testset")
 @click.argument("cp_name")
-def evaluate(i, trainset, testset, cp_name):
-    pop, _, _ = load_checkpoint(cp_name)
+@click.option("--data_source", default=None)
+@click.option("--trainset", default=None)
+@click.option("--testset", default=None)
+def evaluate(i,  cp_name, data_source, trainset, testset):
+    """ Evaluate the I-th individual from the pareto front. """ 
+    _, front, _, cfg = load_checkpoint(cp_name) 
+        
+    config.global_config.update(cfg)
 
-    #    print(pop)
-
+    if data_source is None:
+        assert trainset is None and testset is None
+        data_source  = config.global_config["dataset"]["source_type"]
+        trainset = config.global_config["dataset"]["name"]
+        test_name = config.global_config["dataset"]["test_name"]
+    else:
+        test_name = testset
+        
     # load the whole data
-    X_train, y_train = load_data("data/" + trainset)
-    X_test, y_test = load_data("data/" + testset)
+    X_train, y_train = load_data(data_source, trainset)
+    X_test, y_test = load_data(data_source, trainset, test=True, test_name=test_name)
 
-    E_train, E_test = [], []  # list of accuracies
-    for _ in range(5):
-        network = pop[i].createNetwork()
-        network.fit(X_train, y_train,
-                    batch_size=Config.batch_size,
-                    nb_epoch=20,
-                    verbose=0)
-
-        yy_train = network.predict(X_train)
-        E_train.append(error(yy_train, y_train))
-
-        yy_test = network.predict(X_test)
-        E_test.append(error(yy_test, y_test))
-
+    ind = front[i] 
+    E_train, E_test = eval_mean(ind, X_train, y_train, X_test, y_test)
+    print(i, ": ", end="")
     print_stat(E_train, "train")
+    print(i, ": ", end="")
     print_stat(E_test, "test")
-    print(pop[i].fitness.values)
+    print(i, ": ", end="")
+    print(ind.fitness.values)
+    print(flush=True)
 
 
 @main.command()
 @click.argument("cp_name")
 def plot(cp_name):
-    _, _, log = load_checkpoint(cp_name)
+    log = load_checkpoint(cp_name)[2]
     acc_avg = [line["avg"][0] for line in log]
     acc_size = [line["avg"][1] for line in log]
 
@@ -218,6 +217,8 @@ def plot(cp_name):
 @main.command()
 @click.argument("cp_name")
 def query_iter(cp_name):
+    """ Show the numer of last iteration. """
+    
     log = load_checkpoint(cp_name)[2]
 
     print("Last generation:", [line["gen"] for line in log][-1])
