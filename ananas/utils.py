@@ -35,7 +35,7 @@ def accuracy_score(y1, y2):
 def error(y1, y2):
     """ Return either accuracy score for classification task 
          or mean square error fo regression. """ 
-    if config.global_config["main_alg"]["task_type"] == "classification":
+    if config.global_config["main_alg"]["task_type"] in ("classification", "binary_classification"):
         return accuracy_score(y1, y2)
     else:
         return mean_sq_error(y1, y2)

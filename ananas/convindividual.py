@@ -132,7 +132,10 @@ class ConvIndividual:
         model.add(Dense(self.noutputs))
         if config.global_config["main_alg"]["task_type"] == "classification":
             model.add(Activation('softmax'))
+        elif config.global_config["main_alg"]["task_type"] == "binary_classification":
+            model.add(Activation('sigmoid'))
 
+            
         self.nparams = model.count_params()
 
         return model

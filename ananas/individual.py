@@ -70,6 +70,10 @@ class Individual:
         if config.global_config["main_alg"]["task_type"] == "classification":
             model.add(Activation('softmax'))
 
+        if config.global_config["main_alg"]["task_type"] == "binary_classification":
+            model.add(Activation('sigmoid'))
+
+            
         # model.compile(loss=Config.loss,
         #               optimizer=RMSprop())
 

@@ -3,6 +3,9 @@ import numpy as np
 from keras.datasets import mnist, cifar10, fashion_mnist
 from keras.utils import np_utils
 
+import config
+
+
 data_modules_dict = {
     "mnist": mnist,
     "cifar10": cifar10,
@@ -62,8 +65,11 @@ def load_data(source_type, name, test=False, flatten=True, **kwargs):
             raise NotImplementedError("unsuported dataset type") 
         
         X = X.astype('float32')
-        Y = np_utils.to_categorical(y)
-            
+        if config.global_config["main_alg"]["task_type"] == "binary_classification":
+            assert len(y.unique()) == 2
+            return X, y.to_numpy().reshape(-1,1)
+        
+        Y = np_utils.to_categorical(y) 
         return X, Y
         
         
