@@ -1,3 +1,6 @@
+#obsolete file, now using nsga from deap
+#
+#
 # author: Štěpán Procházka
 import numpy as np
 

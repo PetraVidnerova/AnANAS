@@ -54,6 +54,7 @@ def load_data(source_type, name, test=False, flatten=True, **kwargs):
         else:
             df = pd.read_csv(kwargs["test_name"], header=None)
 
+        # last column as output
         y = df.pop(df.columns[-1])
         if flatten:
             X = df.to_numpy() 
