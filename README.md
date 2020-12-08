@@ -113,6 +113,10 @@ To run on GPU specify:
 device:
   device_type: GPU
 ``` 
+In fact, the usage of GPU or CPU is depands on your tensorflow version. With tensorflow-gpu it will run on GPU. Option `device_type: GPU` 
+only forces the  fitness function to use a multi-model and evaluate individuals simutaneously on one GPU.
+If no GPU, use `device_type: CPU` and `n_cpus` that forces a use of multiprocessing with the given number of workers. 
+
 To evolve convolutional networks:
 ```
 network_type: conv
