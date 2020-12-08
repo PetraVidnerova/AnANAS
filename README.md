@@ -117,6 +117,14 @@ To evolve convolutional networks:
 ```
 network_type: conv
 ``` 
+To use data from `csv` file (file should be comma separated, 
+without a header, output variable in the last column):
+```
+dataset:
+  source_type: csv
+  name: data_train.csv
+  test_name: data_test.csv
+```
 
  
 ## Acknowledgement: 
