@@ -132,6 +132,6 @@ dataset:
 
  
 ## Acknowledgement: 
-This work  was partially supported by the TAČR grant TN01111124 
+This work  was partially supported by the TAČR grant TN01000024
 and institutional support of the Institute of Computer Science RVO 67985807.
 Thanks to Štěpán Procházka for the idea of multi-model implementation. 
