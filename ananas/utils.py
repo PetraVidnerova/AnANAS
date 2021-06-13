@@ -1,3 +1,4 @@
+import tensorflow as tf 
 import numpy as np
 import config
 import random
@@ -35,10 +36,25 @@ def accuracy_score(y1, y2):
 def error(y1, y2):
     """ Return either accuracy score for classification task 
          or mean square error fo regression. """ 
-    if config.global_config["main_alg"]["task_type"] in ("classification", "binary_classification"):
-        return accuracy_score(y1, y2)
+    if isinstance(y1, tf.data.Dataset):
+        if config.global_config["main_alg"]["task_type"] in ("classification", "binary_classification"):
+            raise NotImplementedError()
+
+        test_dataset = y1
+        loss = 0
+        start = 0
+        for _, labels in test_dataset:
+            d = labels - y2[start:start+labels.shape[0]]
+            start += labels.shape[0]
+            norms = tf.norm(d, axis=1, ord=2)
+            loss += tf.math.reduce_mean(norms)
+        return tf.math.reduce_mean(norms)
+
     else:
-        return mean_sq_error(y1, y2)
+        if config.global_config["main_alg"]["task_type"] in ("classification", "binary_classification"):
+            return accuracy_score(y1, y2)
+        else:
+            return mean_sq_error(y1, y2)
 
 
 def print_stat(E, name):

@@ -169,8 +169,8 @@ def main(exp_id, checkpoint_name=None):
 if __name__ == "__main__":
 
     # set network cfg
-    input_shape = fit.X[0].shape
-    noutputs = fit.y.shape[1]
+    input_shape = fit.get_data_size()
+    noutputs = fit.get_n_outputs()
 
     config.global_config["input_shape"] = input_shape
     config.global_config["noutputs"] = noutputs
