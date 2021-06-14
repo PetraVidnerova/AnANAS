@@ -1,4 +1,5 @@
 import keras
+import tensorflow 
 import random
 import pickle
 import datetime
@@ -19,8 +20,15 @@ def eval_invalid_inds_single_gpu(pop, toolbox):
     for batch_begin in range(0, eval_size, eval_batch_size):
         batch_end = min(batch_begin + eval_batch_size, eval_size)
         batch_individuals = invalid_pop[batch_begin:batch_end]
-        batch_fitness = toolbox.eval_batch(batch_individuals)
-
+        try:
+            batch_fitness = toolbox.eval_batch(batch_individuals)
+        except tensorflow.errors.ResourceExhaustedError:
+            batch_fitness = [
+                (0.0, 100000) if config.global_config["main_alg"]["task_type"] == "classification" else (1.0, 100000)
+                for _ in batch_individuals
+            ]
+            print("WARNING: individual does not fit into memory")
+            
         for individual, fitness in zip(batch_individuals, batch_fitness):
             individual.fitness.values = fitness
 
@@ -33,22 +41,27 @@ def eval_invalid_inds_cpu_parallel(pop, toolbox):
     """ 
     
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
-    ind_batches = [
-        [individual]
-        for individual in invalid_ind
-    ] 
-    # fitnesses = toolbox.map(
-    #     lambda x: toolbox.eval_batch(x)[0], # returns one lement list 
-    #     ind_batches 
+    # ind_batches = [
+    #     [individual]
+    #     for individual in invalid_ind
+    # ] 
+    # # fitnesses = toolbox.map(
+    # #     lambda x: toolbox.eval_batch(x)[0], # returns one lement list 
+    # #     ind_batches 
+    # # )
+    
+    # fitnesses_in_lists = toolbox.map(
+    #     toolbox.eval_batch,
+    #     ind_batches
     # )
     
-    fitnesses_in_lists = toolbox.map(
-        toolbox.eval_batch,
-        ind_batches
+    # fitnesses = [l[0] for l in fitnesses_in_lists]
+
+    fitnesses = toolbox.map(
+        toolbox.evaluate,
+        invalid_ind
     )
     
-    fitnesses = [l[0] for l in fitnesses_in_lists]
-
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
     return len(invalid_ind)

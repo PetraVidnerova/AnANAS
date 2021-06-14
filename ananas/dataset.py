@@ -71,8 +71,16 @@ def load_data(source_type, name, test=False, flatten=True, **kwargs):
         
         Y = np_utils.to_categorical(y) 
         return X, Y
-        
-        
+
+    if source_type == "numpy":
+        if not test:
+            X_name = name + "X_train.npy"
+            y_name = name + "y_train.npy"
+        else:
+            X_name = name + "X_test.npy"
+            y_name = name + "y_test.npy"
+            
+        return np.load(X_name),  np.load(y_name) 
         
     raise NotImplementedError("unsuported dataset type") 
 

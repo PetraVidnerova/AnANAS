@@ -46,7 +46,7 @@ class Fitness:
 
     def evaluate_batch(self, individuals):
 
-        kf = KFold(n_splits=5, shuffle=True, random_state=42)
+        kf = KFold(n_splits=4, shuffle=True, random_state=42)
         xval_datasets = np.asarray([
             (self.X[train], self.y[train], self.X[test], self.y[test])
             for train, test in kf.split(self.X)
@@ -86,7 +86,7 @@ class Fitness:
             [y_train for y_train in xval_datasets[:, 1] for _ in individuals],
             batch_size=config.global_config["main_alg"]["batch_size"],
             epochs=config.global_config["main_alg"]["epochs"],
-            verbose=0
+            verbose=2
         )
 
         pred_test = multi_model.predict(list(xval_datasets[:, 2]))
@@ -106,7 +106,7 @@ class Fitness:
         
         random.seed(42)
         # perform KFold crossvalidation
-        kf = KFold(n_splits=5)
+        kf = KFold(n_splits=4)
         scores = []
         for train, test in kf.split(self.X):   # train, test are indicies
             X_train, X_test = self.X[train], self.X[test]
@@ -114,6 +114,10 @@ class Fitness:
 
             model = individual.createNetwork()
             size = model.count_params() // 1000
+            model.compile(
+                loss=config.global_config["main_alg"]["loss"],
+                optimizer=keras.optimizers.RMSprop()
+            )
             model.fit(X_train, y_train,
                       batch_size=config.global_config["main_alg"]["batch_size"],
                       epochs=config.global_config["main_alg"]["epochs"],
@@ -121,10 +125,13 @@ class Fitness:
 
             yy_test = model.predict(X_test)
             scores.append(error(y_test, yy_test))
+            print("+", end="", flush=True)
+            K.clear_session()
 
         fitness = np.mean(scores)
 
         # I try this to prevent memory leaks in nsga2-keras
-        K.clear_session()
+        
 
+        print("one evaluation finished", flush=True) 
         return fitness, size
