@@ -108,28 +108,46 @@ def load_data(source_type, name, test=False, flatten=True, **kwargs):
         yimg = kwargs["yimg"]
 
         def _extract_fn(tfrecord):
-            # Extract features
+	    # Extract features
             features = {
-                'fpath': tf.io.FixedLenFeature([1], tf.string),
-                'image': tf.io.FixedLenFeature([ximg * yimg], tf.int64),
-                'label': tf.io.FixedLenFeature([6], tf.float32)
-            }
-
-            # Extract the data record
+		'filename': tf.io.FixedLenFeature([], tf.string),
+		'image': tf.io.FixedLenFeature([ximg * yimg], tf.int64),
+		'attrs': tf.io.FixedLenFeature([1], tf.int64)
+	    }
+	    # Extract the data record
             sample = tf.io.parse_single_example(tfrecord, features)
-            fpath = sample['fpath']
-            image = sample['image']
-            label = sample['label']
+            filename = sample['filename']
+            images = sample['image']
+            images = tf.cast(images, tf.float32)
+            images = images / 255
+            images = tf.reshape(images, [ximg, yimg, 1])
+            attrs = sample['attrs']
+            return images, attrs
 
-            fpath = tf.cast(fpath, tf.string)
+        
+        # def _extract_fn(tfrecord):
+        #     # Extract features
+        #     features = {
+        #         'fpath': tf.io.FixedLenFeature([1], tf.string),
+        #         'image': tf.io.FixedLenFeature([ximg * yimg], tf.int64),
+        #         'label': tf.io.FixedLenFeature([6], tf.float32)
+        #     }
 
-            image = tf.reshape(image, [ximg, yimg, 1])
-            image = tf.cast(image, 'float32')
+        #     # Extract the data record
+        #     sample = tf.io.parse_single_example(tfrecord, features)
+        #     fpath = sample['fpath']
+        #     image = sample['image']
+        #     label = sample['label']
 
-            coords = tf.cast(label, 'float32')
+        #     fpath = tf.cast(fpath, tf.string)
+
+        #     image = tf.reshape(image, [ximg, yimg, 1])
+        #     image = tf.cast(image, 'float32')
+
+        #     coords = tf.cast(label, 'float32')
             
-            # return fpath, image, coords
-            return image, coords
+        #     # return fpath, image, coords
+        #     return image, coords
 
         dstype = 'train'
         tfrecord_file = f"{name}train.tfrecord"
@@ -173,7 +191,19 @@ def load_data(source_type, name, test=False, flatten=True, **kwargs):
         Y = np_utils.to_categorical(y)
             
         return X, Y
+
+    elif source_type == "numpy":
+        if not test:
+            X_train = np.load(f"{name}X_train.npy")
+            y_train = np.load(f"{name}y_train.npy")
+            return X_train, y_train
+        else:
+            X_test = np.load(f"{name}X_test.npy")
+            y_test = np.load(f"{name}y_test.npy")
+            return X_test, y_test
             
+
+        
     if source_type == "csv":
         if not test:
             df = pd.read_csv(name, header=None)

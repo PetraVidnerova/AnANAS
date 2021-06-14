@@ -38,18 +38,28 @@ def error(y1, y2):
          or mean square error fo regression. """ 
     if isinstance(y1, tf.data.Dataset):
         if config.global_config["main_alg"]["task_type"] in ("classification", "binary_classification"):
-            raise NotImplementedError()
 
-        test_dataset = y1
-        loss = 0
-        start = 0
-        for _, labels in test_dataset:
-            d = labels - y2[start:start+labels.shape[0]]
-            start += labels.shape[0]
-            norms = tf.norm(d, axis=1, ord=2)
-            loss += tf.math.reduce_mean(norms)
-        return tf.math.reduce_mean(norms)
-
+            test_dataset = y1
+            loss = 0
+            num = 0
+            start = 0
+            for _, labels in test_dataset:
+                d = labels == tf.math.round(y2[start:start+labels.shape[0]])
+                loss += tf.math.reduce_sum(d)
+                num += len(d)
+                start += labels.shape[0]
+            return loss/num
+        else:
+            test_dataset = y1
+            loss = 0
+            start = 0
+            for _, labels in test_dataset:
+                d = labels - y2[start:start+labels.shape[0]]
+                start += labels.shape[0]
+                norms = tf.norm(d, axis=1, ord=2)
+                loss += tf.math.reduce_mean(norms)
+            return loss
+            
     else:
         if config.global_config["main_alg"]["task_type"] in ("classification", "binary_classification"):
             return accuracy_score(y1, y2)

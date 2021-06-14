@@ -53,7 +53,7 @@ class Fitness:
             print(self.input_shape, self.noutputs)
             self.tfrecord = True
             self.data = data
-            self.kf = KFoldC(self.data, k=4) 
+            self.kf = KFoldC(self.data, k=3) 
                         
         else:
             self.X, self.y = data
@@ -75,7 +75,7 @@ class Fitness:
         print("Evaluate Batch")
         
         if self.tfrecord is False:
-            kf = KFold(n_splits=5, shuffle=True, random_state=42)
+            kf = KFold(n_splits=4, shuffle=True, random_state=42)
             xval_datasets = np.asarray([
                 (self.X[train], self.y[train], self.X[test], self.y[test])
                 for train, test in kf.split(self.X)
@@ -83,7 +83,7 @@ class Fitness:
         else:
             xval_datasets = np.asarray([
                 (self.kf.get_i_train(i).batch(8), self.kf.get_i_test(i).batch(8))
-                for i in range(4)
+                for i in range(3)
             ], dtype=object)
             
         xval_features = [
