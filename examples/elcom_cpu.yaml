@@ -1,0 +1,43 @@
+dataset:
+  name: "../../data/Work/Neural/Iterations/0001_X=0_Y=100_Z=100/SP1/"
+  source_type: numpy
+  
+network_type: conv
+
+nsga: 2
+
+input_shape: [512, 512, 1]
+noutputs: 1
+
+main_alg:
+  batch_size: 1
+  eval_batch_size: 1
+  epochs: 10
+  loss: binary_crossentropy
+  task_type: binary_classification
+  final_epochs: 50
+
+ga:
+  pop_size: 6
+  n_gen: 30
+  
+network:
+  max_layers: 5
+  max_layer_size: 200
+  min_layer_size: 5
+  dropout: [0.0, 0.2, 0.3, 0.4]
+  activations: ['relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
+  max_conv_layers: 4
+  conv_layer: 0.7
+  max_pool_layer: 0.3
+  min_pool_size: 2
+  max_pool_size: 4
+  min_filters: 10
+  max_filters: 50
+  max_dense_layers: 4
+  min_kernel_size: 2
+  max_kernel_size: 5
+
+device:
+  device_type: CPU
+  n_cpus: 10
