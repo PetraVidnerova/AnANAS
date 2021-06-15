@@ -95,6 +95,8 @@ class Fitness:
             for test_i, yy_test in enumerate(pred_test)
         ]).reshape(-1, len(individuals))
 
+        print(f"-------------- {scores} ---------------- ")
+        
         K.clear_session()  # free resources allocated by models
 
         fitness = np.mean(scores, axis=0)

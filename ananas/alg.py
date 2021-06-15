@@ -23,8 +23,12 @@ def eval_invalid_inds_single_gpu(pop, toolbox):
         try:
             batch_fitness = toolbox.eval_batch(batch_individuals)
         except tensorflow.errors.ResourceExhaustedError:
+            if config.global_config["main_alg"]["task_type"] in ("classification", "binary_classification"):                
+                err_fitness =  (0.0, 100000)
+            else:
+                err_fitness =  (1.0, 100000)
             batch_fitness = [
-                (0.0, 100000) if config.global_config["main_alg"]["task_type"] == "classification" else (1.0, 100000)
+                err_fitness
                 for _ in batch_individuals
             ]
             print("WARNING: individual does not fit into memory")
