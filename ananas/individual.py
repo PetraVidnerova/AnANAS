@@ -1,7 +1,7 @@
 import random
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation
-from keras.layers import InputLayer
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Activation
+from tensorflow.keras.layers import InputLayer
 # from keras.optimizers import RMSprop
 
 import config
@@ -13,6 +13,12 @@ class Layer:
 
     def __init__(self):
         pass
+
+
+    def __init__(self, size, dropout, activation):
+        self.size = size
+        self.dropout = dropout
+        self.activation = activation 
 
     def randomInit(self):
         network_config = config.global_config["network"] 
@@ -51,6 +57,9 @@ class Individual:
         for l in range(num_layers):
             layer = Layer().randomInit()
             self.layers.append(layer)
+
+    def customInit(self):
+        raise NotImplementedError() 
 
     def createNetwork(self, input_layer=None):
 
@@ -104,3 +113,4 @@ def initIndividual(indclass):
     else:
         raise ValueError("unknown init type")
     return ind
+

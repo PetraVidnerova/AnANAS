@@ -1,4 +1,4 @@
-import keras
+import tensorflow as tf
 import random
 import numpy as np
 import pickle
@@ -54,7 +54,7 @@ class Fitness:
 
     
         xval_features = [
-            keras.layers.InputLayer(self.input_shape)
+            tf.keras.layers.InputLayer(self.input_shape)
             for _ in xval_datasets
         ]
 
@@ -69,7 +69,7 @@ class Fitness:
 
             xval_models.extend(individual_models)
 
-        multi_model = keras.Model(
+        multi_model = tf.keras.Model(
             inputs=[input_features.input for input_features in xval_features],
             outputs=[
                 individual_model.output
@@ -78,7 +78,7 @@ class Fitness:
         )
         multi_model.compile(
             loss=config.global_config["main_alg"]["loss"],
-            optimizer=keras.optimizers.RMSprop()
+            optimizer=tf.keras.optimizers.RMSprop()
         )
 
         multi_model.fit(
@@ -118,7 +118,7 @@ class Fitness:
             size = model.count_params() // 1000
             model.compile(
                 loss=config.global_config["main_alg"]["loss"],
-                optimizer=keras.optimizers.RMSprop()
+                optimizer=tf.keras.optimizers.RMSprop()
             )
             model.fit(X_train, y_train,
                       batch_size=config.global_config["main_alg"]["batch_size"],

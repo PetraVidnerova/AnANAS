@@ -1,10 +1,12 @@
 import random
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D, InputLayer
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, InputLayer, Dense, Dropout, Flatten, Activation
+from tensorflow.keras.applications import VGG19, VGG16
+
 from utils import roulette
 from individual import Layer
 import config
+
 
 class ConvLayer:
     """ Specification of one convolutional layer.
@@ -14,6 +16,11 @@ class ConvLayer:
     def __init__(self):
         pass
 
+    def __init__(self, filters, kernel_size, activation):
+        self.filters = filters 
+        self.kernel_size = kernel_size[0]
+        self.activation = activation 
+        
     def randomInit(self):
         self.filters = random.randint(
             config.global_config["network"]["min_filters"],
@@ -43,6 +50,9 @@ class MaxPoolLayer:
 
     def __init__(self):
         pass
+
+    def __init__(self, pool_size):
+        self.pool_size = pool_size[0] 
 
     def randomInit(self):
         # pooling size is (pool_size, pool_size)
@@ -100,6 +110,41 @@ class ConvIndividual:
         for l in range(num_dense_layers):
             layer = Layer().randomInit()
             self.dense_layers.append(layer)
+
+    def customInit(self):
+
+        self.conv_layers = []
+        self.dense_layers = [] 
+        
+        net = VGG16()
+        
+        for layer in net.layers[:-1]:
+            if isinstance(layer, Conv2D):
+                print("Conv", layer.filters, layer.kernel_size,
+                      layer.activation.__name__)
+                self.conv_layers.append(
+                    ConvLayer(layer.filters, layer.kernel_size, layer.activation)
+                )
+            elif isinstance(layer, MaxPooling2D):
+                print("MaxPool", layer.pool_size)
+                self.conv_layers.append(
+                    MaxPoolLayer(layer.pool_size)
+                )
+            elif isinstance(layer, Flatten):
+                print("Flatten", end=" ")
+            elif isinstance(layer, Dense):
+                print()
+                size = layer.units
+                activation = layer.activation.__name__
+                print("Dense", size, activation, end=" ")
+                self.dense_layers.append(
+                    Layer(size, 0, activation)
+                )
+            elif isinstance(layer, Dropout):
+                print(layer.rate, end="")
+                last_layer = self.dense_layers[-1]
+                last_layer.dropout = layer.rate
+
 
     def createNetwork(self, input_layer=None):
         model = Sequential()
