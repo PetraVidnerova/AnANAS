@@ -97,5 +97,10 @@ class Individual:
 
 def initIndividual(indclass):
     ind = indclass()
-    ind.randomInit()
+    if config.global_config["init"] == "random":
+        ind.randomInit()
+    elif config.global_config["init"] == "custom":
+        ind.customInit()
+    else:
+        raise ValueError("unknown init type")
     return ind
